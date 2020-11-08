@@ -9,7 +9,9 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(express.static("client/build"));
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+}
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/book-search", {
   useNewUrlParser: true,
@@ -28,6 +30,8 @@ connection.on("error", (err) => {
   console.log("Mongoose connection error: ", err);
 });
 
+app.use("/api", apiRoutes);
+
 app.get("/api/config", (req, res) => {
   res.json({
     success: true,
@@ -35,8 +39,8 @@ app.get("/api/config", (req, res) => {
 });
 
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "./client/build/index.html"));
-  });
+  res.sendFile(path.join(__dirname, "./client/build/index.html"));
+});
 
 app.listen(PORT, () => {
   console.log(`App is running on http://localhost:${PORT}`);
