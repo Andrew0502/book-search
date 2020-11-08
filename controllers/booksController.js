@@ -1,37 +1,50 @@
-const db = require("../models");
+const express = require("express");
+const router = express.Router();
+const db = require("../models/Book");
 
-// Defining methods for the booksController
-module.exports = {
-  findAll: function(req, res) {
-    db.Book
-      .find(req.query)
-      .sort({ date: -1 })
-      .then(dbModel => res.json(dbModel))
-      .catch(err => res.status(422).json(err));
-  },
-  findById: function(req, res) {
-    db.Book
-      .findById(req.params.id)
-      .then(dbModel => res.json(dbModel))
-      .catch(err => res.status(422).json(err));
-  },
-  create: function(req, res) {
-    db.Book
-      .create(req.body)
-      .then(dbModel => res.json(dbModel))
-      .catch(err => res.status(422).json(err));
-  },
-  update: function(req, res) {
-    db.Book
-      .findOneAndUpdate({ _id: req.params.id }, req.body)
-      .then(dbModel => res.json(dbModel))
-      .catch(err => res.status(422).json(err));
-  },
-  remove: function(req, res) {
-    db.Book
-      .findById({ _id: req.params.id })
-      .then(dbModel => dbModel.remove())
-      .then(dbModel => res.json(dbModel))
-      .catch(err => res.status(422).json(err));
-  }
-};
+router.post("/api/save", ({ body }, res) => {
+  db.Book.create(body)
+    .then((savedBook) => {
+      res.json(savedBook);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({
+        error: true,
+        data: null,
+        message: "There was an error saving the book",
+      });
+    });
+});
+
+router.delete("/api/books/:id", (req, res) => {
+  db.Book.findByIdAndDelete(req.params.id)
+    .then((deleteBook) => {
+      res.json(deleteBook);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({
+        error: true,
+        data: null,
+        message: "There was an error saving the book",
+      });
+    });
+});
+
+router.get("/api/all", (req, res) => {
+  db.Book.find({})
+    .then((allBooks) => {
+      res.json(allBooks);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({
+        error: true,
+        data: null,
+        message: "There was an error saving the book",
+      });
+    });
+});
+
+module.exports = router;
